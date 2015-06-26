@@ -1,0 +1,30 @@
+A small tool for renaming/copying/linking files
+
+Usage: match -p pattern -f format [-a action] [-iq] file ...
+
+-a
+        `action` can be any command with source-target arguments like cp(1),
+        mv(1) or ln(1).  If not specified match runs in  dry run mode and will
+        not change anything.
+
+-p
+        The pattern files are matched against.  `action` is only executed on a file
+        when there is a match.
+
+-f
+        The target filename.  %n will be replaced by the n-th capture from the pattern.
+
+-i
+        Ignore errors from executing `action`.
+
+-q
+        Don't output anything
+
+Example:
+
+Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory:
+
+    $ match -p '%d+% %-% ([%a%p]+)' -f '%1' *
+
+The pattern language is described in patterns(7):
+http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man7/patterns.7?query=patterns&sec=7

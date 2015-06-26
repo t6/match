@@ -42,7 +42,7 @@ static int ignore_errors = 0;
 
 int main(int argc, char **argv) {
   int ch;
-  while ((ch = getopt(argc, argv, "iqa:p:f:h")) != -1) {
+  while ((ch = getopt(argc, argv, "iqa:p:f:")) != -1) {
     switch (ch) {
       case 'i':
         ignore_errors = 1;
@@ -128,6 +128,6 @@ static void run(char *source, char *target) {
 
 static void usage() {
   fprintf(stderr,
-          "usage: rename -p pattern -f format [-a action] [-h] file ...\n");
+          "usage: match -p pattern -f format [-a action] [-iq] file ...\n");
   exit(1);
 }
