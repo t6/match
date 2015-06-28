@@ -36,13 +36,13 @@ static void usage();
 
 static char *action = NULL;
 static char *pattern = NULL;
-static char *format = NULL;
+static char *target_format = "%0";
 static int be_quiet = 0;
 static int ignore_errors = 0;
 
 int main(int argc, char **argv) {
   int ch;
-  while ((ch = getopt(argc, argv, "iqa:p:f:")) != -1) {
+  while ((ch = getopt(argc, argv, "iqa:p:t:")) != -1) {
     switch (ch) {
       case 'i':
         ignore_errors = 1;
@@ -56,8 +56,8 @@ int main(int argc, char **argv) {
       case 'p':
         pattern = optarg;
         break;
-      case 'f':
-        format = optarg;
+      case 't':
+        target_format = optarg;
         break;
       default:
         usage();
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
   argc -= optind;
   argv += optind;
 
-  if (argc == 0 || pattern == NULL || format == NULL)
+  if (argc == 0 || pattern == NULL)
     usage();
 
   for (int i = 0; i < argc; i++) {
@@ -89,7 +89,7 @@ static void match(char *filename) {
     err(1, "%s", errstr);
 
   if (match.sm_nmatch > 0) {
-    expand_format(&match, format, buf, sizeof(buf));
+    expand_format(&match, target_format, buf, sizeof(buf));
     run(filename, buf);
   } else if (!be_quiet) {
     warnx("ignoring %s (no match)", filename);
@@ -128,6 +128,6 @@ static void run(char *source, char *target) {
 
 static void usage() {
   fprintf(stderr,
-          "usage: match -p pattern -f format [-a action] [-iq] file ...\n");
+          "usage: match -p pattern [-t format] [-a action] [-iq] file ...\n");
   exit(1);
 }

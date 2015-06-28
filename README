@@ -1,6 +1,6 @@
 A small tool for renaming/copying/linking files
 
-Usage: match -p pattern -f format [-a action] [-iq] file ...
+Usage: match -p pattern [-t format] [-a action] [-iq] file ...
 
 -a
         `action` can be any command with source-target arguments like cp(1),
@@ -12,8 +12,9 @@ Usage: match -p pattern -f format [-a action] [-iq] file ...
         The pattern files are matched against.  `action` is only executed on a file
         when there is a match.
 
--f
-        The target filename.  %n will be replaced by the n-th capture from the pattern.
+-t
+        The target filename.  %n will be replaced by the n-th capture from the
+        pattern.  Defaults to %0.
 
 -i
         Ignore errors from executing `action`.
