@@ -4,9 +4,7 @@ Usage: match -p pattern [-t format] [-a action] [-iq] file ...
 
 -a
         `action` can be any command with source-target arguments like cp(1),
-        mv(1) or ln(1).  If not specified match runs in dry run mode and will
-        only print matches with their target filenames and not change anything
-        in the filesystem.
+        mv(1) or ln(1).  Defaults to echo(1).
 
 -p
         The pattern files are matched against.  `action` is only executed on a file
@@ -19,8 +17,8 @@ Usage: match -p pattern [-t format] [-a action] [-iq] file ...
 -i
         Ignore errors from executing `action`.
 
--q
-        Don't output anything
+-v
+        Warn on non-matches.
 
 Example:
 

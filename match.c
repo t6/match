@@ -34,21 +34,21 @@ static void match(char *filename);
 static void run(char *source, char *target);
 static void usage();
 
-static char *action = NULL;
+static char *action = "echo";
 static char *pattern = NULL;
 static char *target_format = "%0";
-static int be_quiet = 0;
+static int verbose = 0;
 static int ignore_errors = 0;
 
 int main(int argc, char **argv) {
   int ch;
-  while ((ch = getopt(argc, argv, "iqa:p:t:")) != -1) {
+  while ((ch = getopt(argc, argv, "iva:p:t:")) != -1) {
     switch (ch) {
       case 'i':
         ignore_errors = 1;
         break;
-      case 'q':
-        be_quiet = 1;
+      case 'v':
+        verbose = 1;
         break;
       case 'a':
         action = optarg;
@@ -91,38 +91,30 @@ static void match(char *filename) {
   if (match.sm_nmatch > 0) {
     expand_format(&match, target_format, buf, sizeof(buf));
     run(filename, buf);
-  } else if (!be_quiet) {
+  } else if (verbose) {
     warnx("ignoring %s (no match)", filename);
   }
 }
 
 static void run(char *source, char *target) {
-  if (action == NULL) {
-    printf("%s => %s\n", source, target);
-  } else {
-    char *argv[] = { action, source, target, NULL };
-    pid_t child = fork();
-    if (child == 0)
-      execvp(action, argv);
-    else if (child == -1)
-      err(1, "fork");
+  char *argv[] = { action, source, target, NULL };
+  pid_t child = fork();
+  if (child == 0)
+    execvp(action, argv);
+  else if (child == -1)
+    err(1, "fork");
 
-    int status;
-    if (waitpid(child, &status, 0) == -1)
-      err(1, "waitpid");
+  int status;
+  if (waitpid(child, &status, 0) == -1)
+    err(1, "waitpid");
 
-    if (status != 0) {
-      if (be_quiet) {
-        exit(1);
-      } else {
-        if (ignore_errors)
-          warnx("'%s %s %s' failed with status %i (ignoring)", action, source,
-                target, status);
-        else
-          errx(1, "'%s %s %s' failed with status %i", action, source, target,
-               status);
-      }
-    }
+  if (status != 0) {
+    if (ignore_errors)
+      warnx("'%s %s %s' failed with status %i (ignoring)", action, source,
+            target, status);
+    else
+      errx(1, "'%s %s %s' failed with status %i", action, source, target,
+           status);
   }
 }
 
