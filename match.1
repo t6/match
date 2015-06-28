@@ -18,7 +18,7 @@
 .Os
 .Sh NAME
 .Nm match
-.Nd "a tool for matching and replacing strings"
+.Nd "a tool for matching strings"
 .Sh SYNOPSIS
 .Nm
 .Fl p Ar pattern
@@ -30,7 +30,7 @@
 .Ar string ...
 .Sh DESCRIPTION
 .Nm
-is a small tool for matching and replacing strings.  The
+is a small tool for matching strings.  The
 .Ar pattern
 is tried on each argument and if there is a match
 .Ar command
@@ -71,7 +71,7 @@ Warn on encountering non matching arguments.
 .Sh EXAMPLES
 Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory
 .Bd -literal -offset indent
-match -p '%d+% %-% ([%a%p]+)' -c mv -f %1 *
+match -p '%d+% %-% ([%a%p]+)' -c mv -t %1 *
 .Ed
 .Pp
 \fB%1\fP is replaced by the first capture defined by the parentheses

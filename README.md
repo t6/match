@@ -1,6 +1,6 @@
 <div class="mandoc">
 <div class="section">
-<h1 id="x4e414d45">NAME</h1> <b class="name">match</b> &#8212; <span class="desc">a tool for matching and replacing strings</span></div>
+<h1 id="x4e414d45">NAME</h1> <b class="name">match</b> &#8212; <span class="desc">a tool for matching strings</span></div>
 <div class="section">
 <h1 id="x53594e4f50534953">SYNOPSIS</h1><table class="synopsis">
 <col style="width: 5.00ex;"/>
@@ -16,7 +16,7 @@ match</td>
 </table>
 </div>
 <div class="section">
-<h1 id="x4445534352495054494f4e">DESCRIPTION</h1> <b class="name">match</b> is a small tool for matching and replacing strings.  The <i class="arg">pattern</i> is tried on each argument and if there is a match <i class="arg">command</i> is executed with the original string and a string that is created from <i class="arg">format</i>.<div class="spacer">
+<h1 id="x4445534352495054494f4e">DESCRIPTION</h1> <b class="name">match</b> is a small tool for matching strings.  The <i class="arg">pattern</i> is tried on each argument and if there is a match <i class="arg">command</i> is executed with the original string and a string that is created from <i class="arg">format</i>.<div class="spacer">
 </div>
 <b class="name">match</b> can be used for renaming files simply by specifying  <b>mv</b> as <i class="arg">command</i>.</div>
 <div class="section">
@@ -53,7 +53,7 @@ Warn on encountering non matching arguments.</dd>
 <h1 id="x4558414d504c4553">EXAMPLES</h1> Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory<div class="spacer">
 </div>
 <pre style="margin-left: 5.00ex;" class="lit display">
-match -p '%d+% %-% ([%a%p]+)' -c mv -f %1 *</pre>
+match -p '%d+% %-% ([%a%p]+)' -c mv -t %1 *</pre>
 <div class="spacer">
 </div>
 <b>%1</b> is replaced by the first capture defined by the parentheses in the pattern.</div>
