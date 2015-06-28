@@ -34,7 +34,7 @@ static void match(char *filename);
 static void run(char *source, char *target);
 static void usage();
 
-static char *action = "echo";
+static char *command = "echo";
 static char *pattern = NULL;
 static char *target_format = "%0";
 static int verbose = 0;
@@ -43,7 +43,7 @@ static int matches_only = 0;
 
 int main(int argc, char **argv) {
   int ch;
-  while ((ch = getopt(argc, argv, "miva:p:t:")) != -1) {
+  while ((ch = getopt(argc, argv, "mivc:p:t:")) != -1) {
     switch (ch) {
       case 'm':
         matches_only = 1;
@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
       case 'v':
         verbose = 1;
         break;
-      case 'a':
-        action = optarg;
+      case 'c':
+        command = optarg;
         break;
       case 'p':
         pattern = optarg;
@@ -77,34 +77,34 @@ int main(int argc, char **argv) {
   for (int i = 0; i < argc; i++) {
     match(argv[i]);
   }
-  if (action == NULL)
+  if (command == NULL)
     warnx("Did nothing; to apply matches run with e.g. '%s' or '%s'", "-a cp",
           "-a mv");
 
   return 0;
 }
 
-static void match(char *filename) {
+static void match(char *string) {
   struct str_match match;
   const char *errstr = NULL;
   char buf[4096];
-  str_match(filename, pattern, &match, &errstr);
+  str_match(string, pattern, &match, &errstr);
   if (errstr)
     err(1, "%s", errstr);
 
   if (match.sm_nmatch > 0) {
     expand_format(&match, target_format, buf, sizeof(buf));
-    run(filename, buf);
+    run(string, buf);
   } else if (verbose) {
-    warnx("ignoring %s (no match)", filename);
+    warnx("ignoring %s (no match)", string);
   }
 }
 
 static void run(char *source, char *target) {
-  char *argv[] = { action, source, matches_only ? NULL : target, NULL };
+  char *argv[] = { command, source, matches_only ? NULL : target, NULL };
   pid_t child = fork();
   if (child == 0)
-    execvp(action, argv);
+    execvp(command, argv);
   else if (child == -1)
     err(1, "fork");
 
@@ -114,16 +114,16 @@ static void run(char *source, char *target) {
 
   if (status != 0) {
     if (ignore_errors)
-      warnx("'%s %s %s' failed with status %i (ignoring)", action, source,
+      warnx("'%s %s %s' failed with status %i (ignoring)", command, source,
             target, status);
     else
-      errx(1, "'%s %s %s' failed with status %i", action, source, target,
+      errx(1, "'%s %s %s' failed with status %i", command, source, target,
            status);
   }
 }
 
 static void usage() {
   fprintf(stderr,
-          "usage: match -p pattern [-t format] [-a action] [-iq] file ...\n");
+          "usage: match -p pattern [-c command] [-i] [-m] [-t format] [-v] string ...\n");
   exit(1);
 }
