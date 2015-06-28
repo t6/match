@@ -39,11 +39,15 @@ static char *pattern = NULL;
 static char *target_format = "%0";
 static int verbose = 0;
 static int ignore_errors = 0;
+static int matches_only = 0;
 
 int main(int argc, char **argv) {
   int ch;
-  while ((ch = getopt(argc, argv, "iva:p:t:")) != -1) {
+  while ((ch = getopt(argc, argv, "miva:p:t:")) != -1) {
     switch (ch) {
+      case 'm':
+        matches_only = 1;
+        break;
       case 'i':
         ignore_errors = 1;
         break;
@@ -97,7 +101,7 @@ static void match(char *filename) {
 }
 
 static void run(char *source, char *target) {
-  char *argv[] = { action, source, target, NULL };
+  char *argv[] = { action, source, matches_only ? NULL : target, NULL };
   pid_t child = fork();
   if (child == 0)
     execvp(action, argv);
