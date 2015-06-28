@@ -1,0 +1,102 @@
+.\"
+.\" Copyright (c) 2015 Tobias Kortkamp <t@tobik.me>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+.\" SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+.\" OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+.\" CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd June 28, 2015
+.Dt MATCH 1
+.Os
+.Sh NAME
+.Nm match
+.Nd "a tool for matching and replacing strings"
+.Sh SYNOPSIS
+.Nm
+.Fl p Ar pattern
+.Op Fl c Ar command
+.Op Fl i
+.Op Fl m
+.Op Fl t Ar format
+.Op Fl v
+.Ar string ...
+.Sh DESCRIPTION
+.Nm
+is a small tool for matching and replacing strings.  The
+.Ar pattern
+is tried on each argument and if there is a match
+.Ar command
+is executed with the original string and a string that is created from
+.Ar format .
+.Pp
+.Nm
+can be used for renaming files simply by specifying \fBmv\fP as
+.Ar command .
+.Sh OPTIONS
+.Bl -tag -width ".Cm command"
+.It Fl p Ar pattern
+The patterns used for matching.  See
+.Xr patterns 7
+for details on the
+pattern language.
+.It Fl c Ar command
+The command to execute when
+.Ar pattern
+matches a string.  The command gets two arguments the matching string (source)
+and a new string constructed out of the target
+.Ar format :
+.Pp
+.Ar command Ar source Ar target
+.It Fl i
+Ignore errors encountered while running
+.Ar command .
+.It Fl m
+Pass only the original string to
+.Ar command .
+Useful if you just want to see which strings match the given pattern.
+.It Fl t Ar format
+Target format.  \fB%n\fP will be replaced by the n-th capture from the
+pattern.  Defaults to \fB%0\fP i.e. the whole matching string.
+.It Fl v
+Warn on encountering non matching arguments.
+.El
+.Sh EXAMPLES
+Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory
+.Bd -literal -offset indent
+match -p '%d+% %-% ([%a%p]+)' -c mv -f %1 *
+.Ed
+.Pp
+\fB%1\fP is replaced by the first capture defined by the parentheses
+in the pattern.
+.Pp
+.Sh SEE ALSO
+.Xr cp 1
+.Xr ln 1
+.Xr mv 1
+.Xr patterns 7
+.Xr httpd 8
+.Sh AUTHORS
+.An Tobias Kortkamp Aq Mt t@tobik.me
+.Pp
+.Nm
+uses the pattern matching engine from OpenBSD's httpd, which does all
+the hard work and is derived from the original implementation of the
+Lua scripting language written by
+.An -nosplit
+.An Roberto Ierusalimschy ,
+.An Waldemar Celes ,
+and
+.An Luiz Henrique de Figueiredo
+at PUC-Rio.
+It was turned into a native C API for
+.Xr httpd 8
+by
+.An Reyk Floeter Aq Mt reyk@openbsd.org .
