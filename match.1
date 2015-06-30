@@ -55,13 +55,18 @@ and a new string constructed out of the target
 .Ar format :
 .Pp
 .Ar command Ar source Ar target
+.Pp
+Defaults to \fBecho\fP.
 .It Fl i
 Ignore errors encountered while running
 .Ar command .
 .It Fl m
-Pass only the original string to
+Pass only the original (source) string to
 .Ar command .
-Useful if you just want to see which strings match the given pattern.
+Use this flag if you only want see the strings which match the given pattern.
+.It Fl o
+Pass only the target string to
+.Ar command .
 .It Fl t Ar format
 Target format.  \fB%n\fP will be replaced by the n-th capture from the
 pattern.  Defaults to \fB%0\fP i.e. the whole matching string.

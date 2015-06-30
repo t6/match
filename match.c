@@ -32,7 +32,7 @@ extern void expand_format(struct str_match *match, char *val, char *buf,
                           size_t len);
 static void match(char *filename);
 static void run(char *source, char *target);
-static void usage();
+static void usage(void);
 
 static char *command = "echo";
 static char *pattern = NULL;
@@ -40,13 +40,17 @@ static char *target_format = "%0";
 static int verbose = 0;
 static int ignore_errors = 0;
 static int matches_only = 0;
+static int target_only = 0;
 
 int main(int argc, char **argv) {
   int ch;
-  while ((ch = getopt(argc, argv, "mivc:p:t:")) != -1) {
+  while ((ch = getopt(argc, argv, "omivc:p:t:")) != -1) {
     switch (ch) {
       case 'm':
         matches_only = 1;
+        break;
+      case 'o':
+        target_only = 1;
         break;
       case 'i':
         ignore_errors = 1;
@@ -74,26 +78,28 @@ int main(int argc, char **argv) {
   if (argc == 0 || pattern == NULL)
     usage();
 
+  if (target_only && matches_only) {
+    warnx("-m and -o are mutually exclusive");
+    usage();
+  }
+
   for (int i = 0; i < argc; i++) {
     match(argv[i]);
   }
-  if (command == NULL)
-    warnx("Did nothing; to apply matches run with e.g. '%s' or '%s'", "-a cp",
-          "-a mv");
 
   return 0;
 }
 
 static void match(char *string) {
-  struct str_match match;
+  struct str_match matches;
   const char *errstr = NULL;
   char buf[4096];
-  str_match(string, pattern, &match, &errstr);
+  str_match(string, pattern, &matches, &errstr);
   if (errstr)
     err(1, "%s", errstr);
 
-  if (match.sm_nmatch > 0) {
-    expand_format(&match, target_format, buf, sizeof(buf));
+  if (matches.sm_nmatch > 0) {
+    expand_format(&matches, target_format, buf, sizeof(buf));
     run(string, buf);
   } else if (verbose) {
     warnx("ignoring %s (no match)", string);
@@ -101,7 +107,15 @@ static void match(char *string) {
 }
 
 static void run(char *source, char *target) {
-  char *argv[] = { command, source, matches_only ? NULL : target, NULL };
+  char *argv[4];
+  size_t i = 0;
+  argv[i++] = command;
+  if (!target_only)
+    argv[i++] = source;
+  if (!matches_only)
+    argv[i++] = target;
+  argv[i++] = NULL;
+
   pid_t child = fork();
   if (child == 0)
     execvp(command, argv);
@@ -123,7 +137,7 @@ static void run(char *source, char *target) {
 }
 
 static void usage() {
-  fprintf(stderr,
-          "usage: match -p pattern [-c command] [-i] [-m] [-t format] [-v] string ...\n");
+  fprintf(stderr, "usage: match -p pattern [-c command] [-i] [-m] [-o] "
+                  "[-t format] [-v] string ...\n");
   exit(1);
 }

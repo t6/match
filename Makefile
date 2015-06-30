@@ -3,6 +3,7 @@ SRCS+=		match.c patterns.c utils.c
 MAN=		patterns.7
 
 #DEBUG=		-g -DDEBUG=3 -O0
+CFLAGS+=	-std=c99
 CFLAGS+=	-Wall -I${.CURDIR}
 CFLAGS+=	-Wstrict-prototypes -Wmissing-prototypes
 CFLAGS+=	-Wmissing-declarations
