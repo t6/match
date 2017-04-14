@@ -14,10 +14,10 @@
 .\" CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .Dd June 28, 2015
-.Dt MATCH 1
+.Dt PATMAT 1
 .Os
 .Sh NAME
-.Nm match
+.Nm patmat
 .Nd "a tool for matching strings"
 .Sh SYNOPSIS
 .Nm
@@ -76,7 +76,7 @@ Warn on encountering non matching arguments.
 .Sh EXAMPLES
 Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory
 .Bd -literal -offset indent
-match -p '%d+% %-% ([%a%p]+)' -c mv -t %1 *
+patmat -p '%d+% %-% ([%a%p]+)' -c mv -t %1 *
 .Ed
 .Pp
 \fB%1\fP is replaced by the first capture defined by the parentheses
@@ -86,8 +86,7 @@ in the pattern.
 .Xr cp 1
 .Xr ln 1
 .Xr mv 1
-.Xr patterns 7
-.Xr httpd 8
+.Xr patmat-patterns 7
 .Sh AUTHORS
 .An Tobias Kortkamp Aq Mt t@tobik.me
 .Pp
