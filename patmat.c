@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Tobias Kortkamp <t@tobik.me>
+ * Copyright (c) 2015-2017 Tobias Kortkamp <t@tobik.me>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -26,12 +26,10 @@
 
 #include "patterns.h"
 
-extern int expand_string(char *label, size_t len, const char *srch,
-                         const char *repl);
-extern void expand_format(struct str_match *match, char *val, char *buf,
-                          size_t len);
-static void match(char *filename);
-static void run(char *source, char *target);
+extern int expand_string(char *, size_t, const char *, const char *);
+extern void expand_format(struct str_match *, char *, char *, size_t);
+static void match(char *);
+static void run(char *, char *);
 static void usage(void);
 
 static char *command = "echo";
@@ -42,102 +40,110 @@ static int ignore_errors = 0;
 static int matches_only = 0;
 static int target_only = 0;
 
-int main(int argc, char **argv) {
-  int ch;
-  while ((ch = getopt(argc, argv, "omivc:p:t:")) != -1) {
-    switch (ch) {
-      case 'm':
-        matches_only = 1;
-        break;
-      case 'o':
-        target_only = 1;
-        break;
-      case 'i':
-        ignore_errors = 1;
-        break;
-      case 'v':
-        verbose = 1;
-        break;
-      case 'c':
-        command = optarg;
-        break;
-      case 'p':
-        pattern = optarg;
-        break;
-      case 't':
-        target_format = optarg;
-        break;
-      default:
-        usage();
-    }
-  }
+int
+main(int argc, char **argv)
+{
+	int ch;
+	while ((ch = getopt(argc, argv, "omivc:p:t:")) != -1) {
+		switch (ch) {
+		case 'm':
+			matches_only = 1;
+			break;
+		case 'o':
+			target_only = 1;
+			break;
+		case 'i':
+			ignore_errors = 1;
+			break;
+		case 'v':
+			verbose = 1;
+			break;
+		case 'c':
+			command = optarg;
+			break;
+		case 'p':
+			pattern = optarg;
+			break;
+		case 't':
+			target_format = optarg;
+			break;
+		default:
+			usage();
+		}
+	}
 
-  argc -= optind;
-  argv += optind;
+	argc -= optind;
+	argv += optind;
 
-  if (argc == 0 || pattern == NULL)
-    usage();
+	if (argc == 0 || pattern == NULL)
+		usage();
 
-  if (target_only && matches_only) {
-    warnx("-m and -o are mutually exclusive");
-    usage();
-  }
+	if (target_only && matches_only) {
+		warnx("-m and -o are mutually exclusive");
+		usage();
+	}
 
-  for (int i = 0; i < argc; i++) {
-    match(argv[i]);
-  }
+	for (int i = 0; i < argc; i++) {
+		match(argv[i]);
+	}
 
-  return 0;
+	return 0;
 }
 
-static void match(char *string) {
-  struct str_match matches;
-  const char *errstr = NULL;
-  char buf[4096];
-  str_match(string, pattern, &matches, &errstr);
-  if (errstr)
-    err(1, "%s", errstr);
+static void
+match(char *string)
+{
+	struct str_match matches;
+	const char *errstr = NULL;
+	char buf[4096];
+	str_match(string, pattern, &matches, &errstr);
+	if (errstr)
+		err(1, "%s", errstr);
 
-  if (matches.sm_nmatch > 0) {
-    expand_format(&matches, target_format, buf, sizeof(buf));
-    run(string, buf);
-  } else if (verbose) {
-    warnx("ignoring %s (no match)", string);
-  }
+	if (matches.sm_nmatch > 0) {
+		expand_format(&matches, target_format, buf, sizeof(buf));
+		run(string, buf);
+	} else if (verbose) {
+		warnx("ignoring %s (no match)", string);
+	}
 }
 
-static void run(char *source, char *target) {
-  char *argv[4];
-  size_t i = 0;
-  argv[i++] = command;
-  if (!target_only)
-    argv[i++] = source;
-  if (!matches_only)
-    argv[i++] = target;
-  argv[i++] = NULL;
+static void
+run(char *source, char *target)
+{
+	char *argv[4];
+	size_t i = 0;
+	argv[i++] = command;
+	if (!target_only)
+		argv[i++] = source;
+	if (!matches_only)
+		argv[i++] = target;
+	argv[i++] = NULL;
 
-  pid_t child = fork();
-  if (child == 0)
-    execvp(command, argv);
-  else if (child == -1)
-    err(1, "fork");
+	pid_t child = fork();
+	if (child == 0)
+		execvp(command, argv);
+	else if (child == -1)
+		err(1, "fork");
 
-  int status;
-  if (waitpid(child, &status, 0) == -1)
-    err(1, "waitpid");
+	int status;
+	if (waitpid(child, &status, 0) == -1)
+		err(1, "waitpid");
 
-  if (status != 0) {
-    if (ignore_errors)
-      warnx("'%s %s %s' failed with status %i (ignoring)", command, source,
-            target, status);
-    else
-      errx(1, "'%s %s %s' failed with status %i", command, source, target,
-           status);
-  }
+	if (status != 0) {
+		if (ignore_errors)
+			warnx("'%s %s %s' failed with status %i (ignoring)", command, source,
+			      target, status);
+		else
+			errx(1, "'%s %s %s' failed with status %i", command, source, target,
+			     status);
+	}
 }
 
-static void usage() {
-  fprintf(stderr, "usage: match -p pattern [-c command] [-i] [-m] [-o] "
-                  "[-t format] [-v] string ...\n");
-  exit(1);
+static void
+usage()
+{
+	fprintf(stderr, "usage: match -p pattern [-c command] [-i] [-m] [-o] "
+		"[-t format] [-v] string ...\n");
+	exit(1);
 }
