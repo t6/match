@@ -26,20 +26,20 @@
 .Op Fl i
 .Op Fl t Ar format
 .Op Fl v
-.Ar string ...
+.Op Ar string ...
 .Sh DESCRIPTION
 .Nm
 is a small tool for matching strings.
 The
 .Ar pattern
-is tried on each argument and if there is a match
+is tried on each string and if there is a match
 .Ar command
 is executed with the original string and a string that is created from
 .Ar format .
 .Pp
 .Nm
-can be used for renaming files simply by specifying \fBmv\fP as
-.Ar command .
+will match on lines read from stdin if no string arguments are passed
+to it.
 .Sh OPTIONS
 .Bl -tag -width ".Cm command"
 .It Fl p Ar pattern

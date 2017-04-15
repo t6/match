@@ -41,6 +41,9 @@ static int ignore_errors = 0;
 int
 main(int argc, char **argv)
 {
+	char *line = NULL;
+	size_t linecap = 0;
+	ssize_t linelen;
 	int ch, i;
 
 	while ((ch = getopt(argc, argv, "ivc:p:t:")) != -1) {
@@ -68,11 +71,21 @@ main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (argc == 0 || pattern == NULL)
+	if (pattern == NULL)
 		usage();
 
-	for (i = 0; i < argc; i++) {
-		match(argv[i]);
+	if (argc == 0) {
+		while ((linelen = getline(&line, &linecap, stdin)) > 0) {
+			if (linelen > 0 && line[linelen - 1] == '\n') {
+					line[linelen - 1] = 0;
+			}
+			match(line);
+		}
+		free(line);
+	} else {
+		for (i = 0; i < argc; i++) {
+			match(argv[i]);
+		}
 	}
 
 	return 0;
@@ -87,7 +100,7 @@ match(char *string)
 
 	str_match(string, pattern, &matches, &errstr);
 	if (errstr) {
-		err(1, "%s", errstr);
+		errx(1, "%s", errstr);
 	}
 
 	if (matches.sm_nmatch > 0) {
