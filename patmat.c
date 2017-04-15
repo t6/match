@@ -32,26 +32,19 @@ static void match(char *);
 static void run(char *, char *);
 static void usage(void);
 
-static char *command = "echo";
+static char *script = NULL;
 static char *pattern = NULL;
 static char *target_format = "%0";
 static int verbose = 0;
 static int ignore_errors = 0;
-static int matches_only = 0;
-static int target_only = 0;
 
 int
 main(int argc, char **argv)
 {
-	int ch;
-	while ((ch = getopt(argc, argv, "omivc:p:t:")) != -1) {
+	int ch, i;
+
+	while ((ch = getopt(argc, argv, "ivc:p:t:")) != -1) {
 		switch (ch) {
-		case 'm':
-			matches_only = 1;
-			break;
-		case 'o':
-			target_only = 1;
-			break;
 		case 'i':
 			ignore_errors = 1;
 			break;
@@ -59,7 +52,7 @@ main(int argc, char **argv)
 			verbose = 1;
 			break;
 		case 'c':
-			command = optarg;
+			script = optarg;
 			break;
 		case 'p':
 			pattern = optarg;
@@ -78,12 +71,7 @@ main(int argc, char **argv)
 	if (argc == 0 || pattern == NULL)
 		usage();
 
-	if (target_only && matches_only) {
-		warnx("-m and -o are mutually exclusive");
-		usage();
-	}
-
-	for (int i = 0; i < argc; i++) {
+	for (i = 0; i < argc; i++) {
 		match(argv[i]);
 	}
 
@@ -96,9 +84,11 @@ match(char *string)
 	struct str_match matches;
 	const char *errstr = NULL;
 	char buf[4096];
+
 	str_match(string, pattern, &matches, &errstr);
-	if (errstr)
+	if (errstr) {
 		err(1, "%s", errstr);
+	}
 
 	if (matches.sm_nmatch > 0) {
 		expand_format(&matches, target_format, buf, sizeof(buf));
@@ -111,39 +101,48 @@ match(char *string)
 static void
 run(char *source, char *target)
 {
-	char *argv[4];
+	char *argv[8];
 	size_t i = 0;
-	argv[i++] = command;
-	if (!target_only)
-		argv[i++] = source;
-	if (!matches_only)
-		argv[i++] = target;
+	pid_t child;
+	int status;
+
+	if (script == NULL) {
+		printf("%s\t%s\n", source, target);
+		return;
+	}
+
+	argv[i++] = "/bin/sh";
+	argv[i++] = "-c";
+	argv[i++] = script;
+	argv[i++] = "--";
+	argv[i++] = "-";
+	argv[i++] = source;
+	argv[i++] = target;
 	argv[i++] = NULL;
 
-	pid_t child = fork();
-	if (child == 0)
-		execvp(command, argv);
-	else if (child == -1)
+	child = fork();
+	if (child == 0 && execv("/bin/sh", argv) < 0) {
+		err(1, "execv");
+	} else if (child == -1) {
 		err(1, "fork");
+	}
 
-	int status;
-	if (waitpid(child, &status, 0) == -1)
+	if (waitpid(child, &status, 0) < 0)
 		err(1, "waitpid");
 
 	if (status != 0) {
-		if (ignore_errors)
-			warnx("'%s %s %s' failed with status %i (ignoring)", command, source,
-			      target, status);
-		else
-			errx(1, "'%s %s %s' failed with status %i", command, source, target,
-			     status);
+		if (ignore_errors) {
+			warnx("failed with status %i (ignoring)", status);
+		} else {
+			errx(1, "failed with status %i", status);
+		}
 	}
 }
 
 static void
 usage()
 {
-	fprintf(stderr, "usage: match -p pattern [-c command] [-i] [-m] [-o] "
-		"[-t format] [-v] string ...\n");
+	fprintf(stderr, "usage: patmat -p pattern [-c script] [-i]"
+		" [-t format] [-v] string ...\n");
 	exit(1);
 }

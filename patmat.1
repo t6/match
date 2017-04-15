@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015 Tobias Kortkamp <t@tobik.me>
+.\" Copyright (c) 2015-2017 Tobias Kortkamp <t@tobik.me>
 .\"
 .\" Permission to use, copy, modify, and/or distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -13,24 +13,24 @@
 .\" OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 .\" CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd June 28, 2015
+.Dd April 15, 2017
 .Dt PATMAT 1
 .Os
 .Sh NAME
 .Nm patmat
-.Nd "a tool for matching strings"
+.Nd "a pattern matching tool"
 .Sh SYNOPSIS
 .Nm
 .Fl p Ar pattern
 .Op Fl c Ar command
 .Op Fl i
-.Op Fl m
 .Op Fl t Ar format
 .Op Fl v
 .Ar string ...
 .Sh DESCRIPTION
 .Nm
-is a small tool for matching strings.  The
+is a small tool for matching strings.
+The
 .Ar pattern
 is tried on each argument and if there is a match
 .Ar command
@@ -43,49 +43,48 @@ can be used for renaming files simply by specifying \fBmv\fP as
 .Sh OPTIONS
 .Bl -tag -width ".Cm command"
 .It Fl p Ar pattern
-The patterns used for matching.  See
+The patterns used for matching.
+See
 .Xr patterns 7
 for details on the
 pattern language.
-.It Fl c Ar command
-The command to execute when
+.It Fl c Ar script
+The script to execute when
 .Ar pattern
-matches a string.  The command gets two arguments the matching string (source)
-and a new string constructed out of the target
-.Ar format :
+matches a string.
+.Ar script
+is passed to
+.Pa /bin/sh .
+In the script the matching string (source) and a new string
+constructed out of the target format will be available as $1 and $2
+respectively.
 .Pp
-.Ar command Ar source Ar target
-.Pp
-Defaults to \fBecho\fP.
+If
+.Fl c
+is not specified, the source and target will be printed to stdout
+separated by a tab (\\t).
 .It Fl i
 Ignore errors encountered while running
-.Ar command .
-.It Fl m
-Pass only the original (source) string to
-.Ar command .
-Use this flag if you only want see the strings which match the given pattern.
-.It Fl o
-Pass only the target string to
-.Ar command .
+.Ar script .
+By default
+.Nm
+will terminate when the script fails to run.
 .It Fl t Ar format
-Target format.  \fB%n\fP will be replaced by the n-th capture from the
-pattern.  Defaults to \fB%0\fP i.e. the whole matching string.
+Target format.
+\fB%n\fP will be replaced by the n-th capture from the pattern.
+Defaults to \fB%0\fP i.e. the whole matching string.
 .It Fl v
 Warn on encountering non matching arguments.
 .El
 .Sh EXAMPLES
 Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory
 .Bd -literal -offset indent
-patmat -p '%d+% %-% ([%a%p]+)' -c mv -t %1 *
+patmat -p '%d+% %-% ([%a%p]+)' -t %1 -c 'mv "$1" "$2"' *
 .Ed
 .Pp
 \fB%1\fP is replaced by the first capture defined by the parentheses
 in the pattern.
-.Pp
 .Sh SEE ALSO
-.Xr cp 1
-.Xr ln 1
-.Xr mv 1
 .Xr patmat-patterns 7
 .Sh AUTHORS
 .An Tobias Kortkamp Aq Mt t@tobik.me
