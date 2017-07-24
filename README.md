@@ -82,6 +82,16 @@ patmat -p '%d+% %-% ([%a%p]+)' -t %1 -c 'mv &quot;$1&quot; &quot;$2&quot;' *
 <div class="Pp"></div>
 <b>%1</b> is replaced by the first capture defined by the parentheses in the
   pattern.
+<div class="Pp"></div>
+Output a CSV table with two columns: The first column will have the original
+  filenames and the second column will have the filenames with a 'FreeBSD-'
+  prefix and '.iso' suffix for all files in the current directory.
+<div class="Pp"></div>
+<div class="Bd" style="margin-left: 5.00ex;">
+<pre class="Li">
+patmat -p '.*' -f';' -t 'FreeBSD-%0.iso' * &gt; out.csv
+</pre>
+</div>
 <h1 class="Sh" title="Sh" id="SEE_ALSO"><a class="selflink" href="#SEE_ALSO">SEE
   ALSO</a></h1>
 <a class="Xr" title="Xr">patmat-patterns(7)</a>

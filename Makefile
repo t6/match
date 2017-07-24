@@ -10,6 +10,8 @@ CFLAGS+=	-Wmissing-declarations
 CFLAGS+=	-Wshadow -Wpointer-arith
 CFLAGS+=	-Wsign-compare
 
+all: patmat README.md
+
 README.md: patmat.1
 	mandoc -Thtml -Ofragment patmat.1 > ${@}
 

@@ -94,6 +94,15 @@ patmat -p '%d+% %-% ([%a%p]+)' -t %1 -c 'mv "$1" "$2"' *
 .Pp
 \fB%1\fP is replaced by the first capture defined by the parentheses
 in the pattern.
+.Pp
+Output a CSV table with two columns: The first column will have the
+original filenames and the second column will have the filenames with
+a 'FreeBSD-' prefix and '.iso' suffix for all files in the current
+directory.
+.Bd -literal -offset ident
+patmat -p '.*' -f';' -t 'FreeBSD-%0.iso' * > out.csv
+.Ed
+.Pp
 .Sh SEE ALSO
 .Xr patmat-patterns 7
 .Sh AUTHORS
