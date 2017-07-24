@@ -87,13 +87,12 @@ Defaults to \fB%0\fP i.e. the whole matching string.
 Warn on encountering non matching arguments.
 .El
 .Sh EXAMPLES
-Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory
+Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current
+directory.  \fB%1\fP is replaced by the first capture defined by the
+parentheses in the pattern.
 .Bd -literal -offset indent
 patmat -p '%d+% %-% ([%a%p]+)' -t %1 -c 'mv "$1" "$2"' *
 .Ed
-.Pp
-\fB%1\fP is replaced by the first capture defined by the parentheses
-in the pattern.
 .Pp
 Output a CSV table with two columns: The first column will have the
 original filenames and the second column will have the filenames with

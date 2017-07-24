@@ -72,16 +72,15 @@
   <dd class="It-tag">Warn on encountering non matching arguments.</dd>
 </dl>
 <h1 class="Sh" title="Sh" id="EXAMPLES"><a class="selflink" href="#EXAMPLES">EXAMPLES</a></h1>
-Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory
+Rename all files like '123 - foo.jpg' to 'foo.jpg' in the current directory.
+  <b>%1</b> is replaced by the first capture defined by the parentheses in the
+  pattern.
 <div class="Pp"></div>
 <div class="Bd" style="margin-left: 5.00ex;">
 <pre class="Li">
 patmat -p '%d+% %-% ([%a%p]+)' -t %1 -c 'mv &quot;$1&quot; &quot;$2&quot;' *
 </pre>
 </div>
-<div class="Pp"></div>
-<b>%1</b> is replaced by the first capture defined by the parentheses in the
-  pattern.
 <div class="Pp"></div>
 Output a CSV table with two columns: The first column will have the original
   filenames and the second column will have the filenames with a 'FreeBSD-'
