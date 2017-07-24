@@ -13,7 +13,7 @@
 .\" OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 .\" CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd April 15, 2017
+.Dd July 24, 2017
 .Dt PATMAT 1
 .Os
 .Sh NAME
@@ -24,6 +24,7 @@
 .Fl p Ar pattern
 .Op Fl c Ar command
 .Op Fl i
+.Op Fl f Ar separator
 .Op Fl t Ar format
 .Op Fl v
 .Op Ar string ...
@@ -45,7 +46,7 @@ to it.
 .It Fl p Ar pattern
 The patterns used for matching.
 See
-.Xr patterns 7
+.Xr patmat-patterns 7
 for details on the
 pattern language.
 .It Fl c Ar script
@@ -62,13 +63,22 @@ respectively.
 If
 .Fl c
 is not specified, the source and target will be printed to stdout
-separated by a tab (\\t).
+separated by a tab (\\t) or the string specified with
+.Fl f .
+.It Fl f
+Set to change the string used as separator for source and target.
+By default a tab is used.  This option is ignored when
+.Fl c
+is used.
 .It Fl i
 Ignore errors encountered while running
 .Ar script .
 By default
 .Nm
 will terminate when the script fails to run.
+This option is ignored when
+.Fl c
+is not used.
 .It Fl t Ar format
 Target format.
 \fB%n\fP will be replaced by the n-th capture from the pattern.

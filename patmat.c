@@ -34,6 +34,7 @@ static void usage(void);
 
 static char *script = NULL;
 static char *pattern = NULL;
+static char *separator = "\t";
 static char *target_format = "%0";
 static int verbose = 0;
 static int ignore_errors = 0;
@@ -46,7 +47,7 @@ main(int argc, char **argv)
 	ssize_t linelen;
 	int ch, i;
 
-	while ((ch = getopt(argc, argv, "ivc:p:t:")) != -1) {
+	while ((ch = getopt(argc, argv, "ivc:f:p:t:")) != -1) {
 		switch (ch) {
 		case 'i':
 			ignore_errors = 1;
@@ -56,6 +57,9 @@ main(int argc, char **argv)
 			break;
 		case 'c':
 			script = optarg;
+			break;
+		case 'f':
+			separator = optarg;
 			break;
 		case 'p':
 			pattern = optarg;
@@ -120,7 +124,7 @@ run(char *source, char *target)
 	int status;
 
 	if (script == NULL) {
-		printf("%s\t%s\n", source, target);
+		printf("%s%s%s\n", source, separator, target);
 		return;
 	}
 
@@ -156,6 +160,6 @@ static void
 usage()
 {
 	fprintf(stderr, "usage: patmat -p pattern [-c script] [-i]"
-		" [-t format] [-v] string ...\n");
+		" [-f separator] [-t format] [-v] string ...\n");
 	exit(1);
 }
